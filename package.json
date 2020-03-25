@@ -1,0 +1,36 @@
+{
+  "name": "redstream",
+  "version": "0.1.0",
+  "description": "Handcrafted TypeScript optimized API for Redis Stream (backed by ioredis)",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/briteboard/node-redstream.git"
+  },
+  "scripts": {
+    "test": "TS_NODE_FILES=true ./node_modules/.bin/mocha -p ./test/tsconfig.json ./test/spec/*.spec.ts",
+    "testw": "TS_NODE_FILES=true ./node_modules/.bin/mocha -p ./test/tsconfig.json ./test/spec/*.spec.ts --watch --watch-files './test/**/*.ts','./src/**/*.ts'",
+    "prepare": "node_modules/.bin/rimraf ./dist && ./node_modules/.bin/tsc"
+  },
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "ioredis": "^4.16.1"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.14.9",
+    "@types/mocha": "^7.0.2",
+    "@types/redis": "^2.8.16",
+    "ioredis": "^4.16.1",
+    "mocha": "^7.1.1",
+    "rimraf": "^3.0.2",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {},
+  "files": [
+    "src/",
+    "dist/"
+  ]
+}

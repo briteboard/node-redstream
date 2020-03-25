@@ -1,0 +1,32 @@
+# By Default, Ignore any .  Mac stuff
+.*
+
+# Except .gitgnore
+!.gitignore
+
+# Allow vscode 
+!.vscode
+
+# Allow mocha file
+!.mocharc.yaml
+
+# Ignore
+node_modules
+
+# Ignore dist/ folders
+dist/
+
+# by convention, ignore all files/folders starting with ~*
+~*
+
+# Safety net
+*.map
+*.jpeg
+*.jpg
+*.png
+*.zip
+*.gz
+*.tar
+*.tgz
+*.mov
+*.mp4
