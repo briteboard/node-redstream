@@ -56,7 +56,7 @@ export interface RedStream<D = DefaultEntryData> {
 	/** Do a xgroup setid. Return true or throw exception */
 	xgroupSetid(group: string, id: string): Promise<true>;
 
-	/** Do a xreadgroup with > by default, and MKGROUP by default */
+	/** Do a xreadgroup with > by default, and MKGROUP by default with '0' */
 	xreadgroup(group: string, consumer: string): Promise<XReadGroupResult<D> | null>;
 	/** Do a xreadgroup with '>' and some options (block) , and MKGROUP by default*/
 	xreadgroup(group: string, consumer: string, opts: XReadGroupOptions): Promise<XReadGroupResult<D> | null>;
@@ -118,8 +118,8 @@ export type XReadOptions = { count?: number, block?: void } | { count?: void, bl
 export type XReadGroupOptions = XReadOptions & {
 	/* (default false) */
 	noack?: boolean;
-	/* Will automatically create the group if not exist (default true) */
-	mkgroup?: boolean;
+	/* Will automatically create the group if not exist (default true with default xgroupCreate id '0'), if false will throw exception if group not created. If string, will use it as the xgroupCreate id */
+	mkgroup?: boolean | string;
 }
 
 export type XClaimBaseOptions = {

@@ -77,4 +77,38 @@ describe('xreadgroup', async function () {
 		await stream_clone.ioRedis.disconnect();
 	});
 
+	it('xreadgroup-mkgroup', async function () {
+		const stream = suite.stream;
+
+		// make sure the stream is clean of group
+		await stream.xgroupDestroy('g1');
+
+		await seedStream(stream, 4);
+
+		const rgResult = await stream.xreadgroup('g1', 'c1');
+		equal(rgResult?.entries.length, 4);
+		equal(rgResult?.entries[0].data?.v, '1');
+
+	});
+
+	it('xreadgroup-mkgroup-$', async function () {
+		const stream = suite.stream;
+		await stream.xadd({ v: '0' });
+
+		// make sure the stream is clean of group
+		await stream.xgroupDestroy('g1');
+
+		const rgResult = await stream.xreadgroup('g1', 'c1', { mkgroup: '$' });
+		equal(rgResult, null); // should be null at this point, because '$' above
+
+
+		await stream.xadd({ v: '1' });
+		await stream.xadd({ v: '2' });
+
+		const rgResult2 = await stream.xreadgroup('g1', 'c1');
+		equal(rgResult2?.entries.length, 2);
+		equal(rgResult2?.entries[0].data?.v, '1');
+
+	});
+
 });

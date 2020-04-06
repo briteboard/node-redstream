@@ -128,8 +128,9 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			rawResult = await this._ioRedis.xreadgroup('GROUP', group, consumer, args);
 		} catch (ex) {
 			const mkgroup = opts?.mkgroup ?? true; // by default we create the group
+			const mkgroupId = (typeof mkgroup === 'string') ? mkgroup : DEFAULT_XGROUPCREATE_ID;
 			if (mkgroup && ex?.message?.includes('NOGROUP')) {
-				await this.xgroupCreate(group); // create the group (won't through an exception, but group might already exist)
+				await this.xgroupCreate(group, { id: mkgroupId }); // create the group (won't through an exception, but group might already exist)
 				rawResult = await this._ioRedis.xreadgroup('GROUP', group, consumer, args); // if fail this time, pass it through
 			} else {
 				throw ex;
