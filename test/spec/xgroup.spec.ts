@@ -12,6 +12,10 @@ describe('xgroup', async function () {
 
 	it('xgroup-create', async () => {
 		const stream = suite.stream;
+		await stream.xgroupDestroy(G1);
+
+		await stream.xadd({ v: '1' });
+
 
 		await stream.xgroupCreate(G1);
 
@@ -20,15 +24,44 @@ describe('xgroup', async function () {
 		equal(result, { count: 0, smallest: null, highest: null, consumers: null });
 
 		// xadd and xreadgroup
-		await stream.xadd({ v: '1' });
 		await stream.xadd({ v: '2' });
-		await stream.xreadgroup(G1, 'c1');
+		await stream.xadd({ v: '3' });
+		const rgResult = await stream.xreadgroup(G1, 'c1');
+
+		equal(rgResult?.entries[0].data, { v: '1' });
 
 		const result2 = await stream.xpending(G1);
-		equal(result2.count, 2, 'count');
+		equal(result2.count, 3, 'count');
 		equal(result2.smallest != null, true, 'result2.smallest != null');
 		equal(result2.highest != null, true, 'result2.highest != null');
-		equal(result2.consumers, [{ name: 'c1', count: 2 }]);
+		equal(result2.consumers, [{ name: 'c1', count: 3 }]);
+
+	});
+
+	it('xgroup-create-$', async () => {
+		const stream = suite.stream;
+		await stream.xgroupDestroy(G1);
+
+		await stream.xadd({ v: '1' });
+
+		await stream.xgroupCreate(G1, { id: '$' });
+
+		// fist empty one
+		const result = await stream.xpending(G1);
+		equal(result, { count: 0, smallest: null, highest: null, consumers: null });
+
+		// xadd and xreadgroup
+		await stream.xadd({ v: '2' });
+		await stream.xadd({ v: '3' });
+		const rgResult = await stream.xreadgroup(G1, 'c1');
+		equal(rgResult?.entries[0].data, { v: '2' });
+
+		const pResult = await stream.xpending(G1);
+		equal(pResult.count, 2, 'count');
+
+		equal(pResult.smallest != null, true, 'result2.smallest != null');
+		equal(pResult.highest != null, true, 'result2.highest != null');
+		equal(pResult.consumers, [{ name: 'c1', count: 2 }]);
 
 	});
 

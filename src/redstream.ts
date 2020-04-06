@@ -47,8 +47,8 @@ export interface RedStream<D = DefaultEntryData> {
 	/** Do a xdel */
 	xdel(...ids: string[]): Promise<number>;
 
-	/** Do a xgroup create. Return true if group was created, or Error if error while in creation (shy error) */
-	xgroupCreate(name: string, opts?: { id?: string, mkstream?: false }): Promise<true | Error>;
+	/** Do a xgroup create (default id: 0 and mkstream: true). Return true if group was created, or Error if error while in creation (shy error) */
+	xgroupCreate(name: string, opts?: { id?: string, mkstream?: boolean }): Promise<true | Error>;
 	/** Do a xgroup destroy, which returns 1 if deleted, or 0 if not (or anything else) */
 	xgroupDestroy(name: string): Promise<number>;
 	/** Do a xgroup delconsumer, */
@@ -56,9 +56,9 @@ export interface RedStream<D = DefaultEntryData> {
 	/** Do a xgroup setid. Return true or throw exception */
 	xgroupSetid(group: string, id: string): Promise<true>;
 
-	/** Do a xreadgroup with > by default */
+	/** Do a xreadgroup with > by default, and MKGROUP by default */
 	xreadgroup(group: string, consumer: string): Promise<XReadGroupResult<D> | null>;
-	/** Do a xreadgroup with '>' and some options (block)*/
+	/** Do a xreadgroup with '>' and some options (block) , and MKGROUP by default*/
 	xreadgroup(group: string, consumer: string, opts: XReadGroupOptions): Promise<XReadGroupResult<D> | null>;
 	/** Do a xreadgroup with a specific id (if not '>', redis returns pending messages only) */
 	xreadgroup(group: string, consumer: string, id: string): Promise<XReadGroupResult<D> | null>;

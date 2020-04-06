@@ -7,6 +7,7 @@ import { camelDataParser, toArray } from './utils';
 // Module encapsulating the RedStream implementation. NOT to be called directly, default module redstream() factory.
 ////
 
+const DEFAULT_XGROUPCREATE_ID = '0';
 
 export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	readonly key: string;
@@ -112,6 +113,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		const id = id_or_opts_isString ? id_or_opts as string : null;
 		opts = id_or_opts_isString ? opts : id_or_opts as XReadGroupOptions; // help ts here
 
+
 		const args: string[] = [];
 
 		// if no id was specificied, and we have a block, then, '$' otherwise, default to 0
@@ -169,7 +171,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	/** Create a group for a given stream. By default does a MKSTREAM, can be turned off. */
 	async xgroupCreate(group: string, opts?: { id?: string, mkstream?: false }): Promise<true | Error> {
 		// XGROUP CREATE s1 g1 $ MKSTREAM
-		const args = ['CREATE', this.key, group, opts?.id ?? '$'];
+		const args = ['CREATE', this.key, group, opts?.id ?? DEFAULT_XGROUPCREATE_ID];
 		if (opts?.mkstream !== false) {
 			args.push('MKSTREAM'); // by default, do the MKSTREAM (create stream if no exist)
 		}
