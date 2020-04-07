@@ -1,5 +1,5 @@
 
-Handcrafted TypeScript optimized library for Redis Stream. This library is uses [ioRedis](https://github.com/luin/ioredis) as backend (peer dependencies)
+Handcrafted TypeScript optimized library for Redis Stream. Backed by [ioRedis](https://github.com/luin/ioredis) (peer dependencies)
 
 ## Install
 
