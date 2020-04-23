@@ -1,7 +1,7 @@
 import IORedis from 'ioredis';
 import { EntryRaw, StreamReadRaw } from './ioredis-type-helpers';
-import { DataParser, DefaultEntryData, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream';
-import { camelDataParser, toArray } from './utils';
+import { DataParser, DataSerializer, DefaultEntryData, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream';
+import { camelDataParser, objectDataSerializer } from './utils';
 
 /////////////////////
 // Module encapsulating the RedStream implementation. NOT to be called directly, default module redstream() factory.
@@ -12,16 +12,22 @@ const DEFAULT_XGROUPCREATE_ID = '0';
 export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	readonly key: string;
 
+
 	private readonly _ioRedis: IORedis.Redis;
 	get ioRedis() { return this._ioRedis };
 
 	private readonly _dataParser: DataParser<D>;
 	get dataParser() { return this._dataParser };
 
-	constructor(ioRedis: IORedis.Redis, name: string, parser: (nvArr: string[]) => D) {
+	private readonly _dataSerializer: DataSerializer<D>;
+	get dataSerializer() { return this._dataSerializer };
+
+
+	constructor(ioRedis: IORedis.Redis, name: string, parser: (nvArr: string[]) => D, serializer: (data: D) => string[]) {
 		this.key = name;
 		this._ioRedis = ioRedis;
 		this._dataParser = parser;
+		this._dataSerializer = serializer ?? objectDataSerializer;
 	}
 
 	async xtrim(count: number, exact = false): Promise<number> {
@@ -70,7 +76,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			args.push('*'); // Here when list of objects, always use '*', the opts should not have .id
 			const batch = this._ioRedis.pipeline();
 			for (const itemObj of obj) {
-				const arr = toArray(itemObj);
+				const arr = this._dataSerializer(itemObj);
 				//const id = await this.ioRedis.xadd(this.key, ...[...args, ...arr]);
 				//result.push(id);
 				batch.xadd(this.key, ...[...args, ...arr]);
@@ -78,7 +84,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			const execResult = await batch.exec(); // [error, id][]
 			return execResult.map(item => item[1]) as string[];
 		} else {
-			const arr = toArray(obj);
+			const arr = this._dataSerializer(obj);
 			args.push(id);
 			return this._ioRedis.xadd(this.key, ...[...args, ...arr]);
 		}

@@ -94,6 +94,10 @@ export interface DataParser<D> {
 	(arr: string[]): D
 }
 
+export interface DataSerializer<D> {
+	(obj: D): string[]
+}
+
 
 
 //#region    ---------- Option Types ---------- 
@@ -132,7 +136,7 @@ export type XClaimOptions = { idle?: number, time?: void } & XClaimBaseOptions |
 //#endregion ---------- /Option Types ---------- 
 
 //#region    ---------- Result Types ---------- 
-export type DefaultEntryData = { [k: string]: string };
+export type DefaultEntryData = { [k: string]: string | object };
 
 export interface StreamEntry<D = DefaultEntryData> {
 	id: string,
@@ -140,6 +144,7 @@ export interface StreamEntry<D = DefaultEntryData> {
 }
 
 export interface StreamGroupEntry<D = DefaultEntryData> extends StreamEntry<D | null> {
+
 }
 
 export interface XReadResult<D = DefaultEntryData> {

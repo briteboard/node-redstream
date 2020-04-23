@@ -1,5 +1,5 @@
 
-export function toArray(obj: any): string[] {
+export function stringDataSerializer(obj: any): string[] {
 	const r = Object.entries(obj).map(e => {
 		const val = e[1];
 		const valStr = (val != null) ? '' + val : null;
@@ -9,13 +9,56 @@ export function toArray(obj: any): string[] {
 }
 
 
-export function stringDataParser(data: string[]): { [k: string]: string } {
+export function objectDataSerializer(obj: any): string[] {
+	const r = Object.entries(obj).map(e => {
+		const val = e[1];
+		let valStr = null;
+		if (val != null) {
+			if (typeof val === 'string') {
+				valStr = val;
+			} else if (typeof val === 'object') {
+				try {
+					valStr = JSON.stringify(val);
+				} catch {
+					valStr = '' + val;
+				}
+			} else {
+				valStr = '' + val;
+			}
+		}
+		return [e[0], valStr];
+	}).filter(eArr => eArr[1] != null).flat();
+
+	return r as string[]; // the filter above will remove the null string, so, safe to force casting
+}
+
+export function stringDataParser(arr: string[]): { [k: string]: string } {
 	const obj: any = {};
-	for (let i = 0; i < data.length; i += 2) {
-		const key = data[i];
-		if (data.length > i + 1) {
-			const val = data[i + 1];
+	for (let i = 0; i < arr.length; i += 2) {
+		const key = arr[i];
+		if (arr.length > i + 1) {
+			const val = arr[i + 1];
 			obj[key] = val; // here we assume it is a string
+		}
+	}
+	return obj;
+}
+
+export function objectDataParser(arr: string[]): { [k: string]: any } {
+	const obj: any = {};
+	for (let i = 0; i < arr.length; i += 2) {
+		const key = arr[i];
+		if (arr.length > i + 1) {
+			const valStr = arr[i + 1];
+			if (valStr.startsWith('[') || valStr.startsWith('{')) {
+				try {
+					obj[key] = JSON.parse(valStr);
+				} catch{
+					obj[key] = valStr;
+				}
+			} else {
+				obj[key] = valStr;
+			}
 		}
 	}
 	return obj;

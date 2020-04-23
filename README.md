@@ -1,5 +1,5 @@
 
-Handcrafted TypeScript optimized library for Redis Stream. Backed by [ioRedis](https://github.com/luin/ioredis) (peer dependencies)
+Handcrafted TypeScript optimized library for Redis Stream. Backed by [ioRedis](https://github.com/luin/ioredis) (peer dependency)
 
 ## Install
 
@@ -14,7 +14,7 @@ npm install -D @types/ioredis
 ```ts
 import { deepStrictEqual as equal } from 'assert';
 import IORedis from 'ioredis';
-import redstream, { stringDataParser } from 'redstream';
+import redstream, { objectDataParser } from 'redstream';
 
 // Requisite: on local host, 
 //  - install and start 'redis-server' or
@@ -46,13 +46,13 @@ async function main() {
 
   // create a dataParser
   const metricDataParser = (dataArr: string[]) => {
-    // Here we use the provided string dataParser to start
-    // parse string [name, value, ...] array to string {name: value, ...} object
-    const stringData = stringDataParser(dataArr);
+    // Here we use the provided objectDataParser to start to parse the redis stream entry [name, value, ...] array to string
+    // Note: if value above start with '{' or '[' it will attempt to do a JSON.parse to get the object. 
+    const dataObj = objectDataParser(dataArr);
     // Then, we return the typed data
     return {
-      temperature: Number(stringData.temperature),
-      pressure: Number(stringData.pressure)
+      temperature: Number(dataObj.temperature),
+      pressure: Number(dataObj.pressure)
     }
   } // TS infer return {temperature: number, pressure: number}
 
