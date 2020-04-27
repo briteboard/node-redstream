@@ -1,6 +1,6 @@
 {
   "name": "redstream",
-  "version": "0.1.2",
+  "version": "0.1.3-SNAPSHOT",
   "description": "Handcrafted TypeScript optimized API for Redis Stream (ioredis backed)",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
