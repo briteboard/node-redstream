@@ -14,11 +14,16 @@ declare module "ioredis" {
 
 	interface Redis {
 
-		//// Fixes:
+		//// Fixes: (see https://github.com/DefinitelyTyped/DefinitelyTyped/issues/44301)
 
-		/* xread return type fix from @types/ioredis */
+		/* @types/ioredis - somehow @types/ioredis returns Array<[string, string[]]> */
 		xread(...args: ValueType[]): StreamReadRaw | null;
-		/* xgroup return xifx from @types/ioredis */
+
+		/* @types/ioredis - somehow @types/ioredis returns Array<[string, string[]]> */
+		// Note: does not return null because throw exception if stream/group not present or auto create
+		xreadgroup(...args: ValueType[]): StreamReadRaw;
+
+		/* xgroup return fix from @types/ioredis */
 		xgroup(...args: ValueType[]): Promise<Ok | number>; // create return OK, but destroy number
 
 
