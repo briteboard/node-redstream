@@ -1,5 +1,5 @@
 import IORedis from 'ioredis';
-import { EntryRaw, StreamReadRaw } from './ioredis-type-helpers';
+import { EntryRaw, IORedisFixedType, StreamReadRaw } from './ioredis-type-helpers';
 import { DataParser, DataSerializer, DefaultEntryData, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream';
 import { camelDataParser, objectDataSerializer } from './utils';
 
@@ -7,14 +7,16 @@ import { camelDataParser, objectDataSerializer } from './utils';
 // Module encapsulating the RedStream implementation. NOT to be called directly, default module redstream() factory.
 ////
 
+
+
 const DEFAULT_XGROUPCREATE_ID = '0';
 
 export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	readonly key: string;
 
 
-	private readonly _ioRedis: IORedis.Redis;
-	get ioRedis() { return this._ioRedis };
+	private readonly _ioRedis: IORedisFixedType;
+	get ioRedis() { return (<any>this._ioRedis) as IORedis.Redis };
 
 	private readonly _dataParser: DataParser<D>;
 	get dataParser() { return this._dataParser };
@@ -25,7 +27,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 
 	constructor(ioRedis: IORedis.Redis, name: string, parser: (nvArr: string[]) => D, serializer: (data: D) => string[]) {
 		this.key = name;
-		this._ioRedis = ioRedis;
+		this._ioRedis = (<any>ioRedis) as IORedisFixedType;
 		this._dataParser = parser;
 		this._dataSerializer = serializer ?? objectDataSerializer;
 	}
