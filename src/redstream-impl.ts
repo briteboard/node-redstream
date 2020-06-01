@@ -1,6 +1,6 @@
 import IORedis from 'ioredis';
 import { EntryRaw, IORedisFixedType, StreamReadRaw } from './ioredis-type-helpers';
-import { DataParser, DataSerializer, DefaultEntryData, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream';
+import { DataParser, DataSerializer, DefaultEntryData, DEFAULT_LIST_OPTIONS, ListDirection, ListOptions, ListResult, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream';
 import { camelDataParser, objectDataSerializer } from './utils';
 
 /////////////////////
@@ -331,7 +331,94 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		return consumers;
 	}
 
+	async list(dir: ListDirection, opts?: ListOptions<D>): Promise<ListResult<D>> {
+		const desc = (dir === 'desc') ? true : (dir === 'asc') ? false : null;
+		if (desc == null) throw new Error(`REDSTREAM ERROR - .list direction ${dir} not supported`);
+
+		// build the _opts (reassign to get right time)
+		const _opts = (opts) ? { ...DEFAULT_LIST_OPTIONS, ...opts } : DEFAULT_LIST_OPTIONS;
+		const { batch, limit, match } = _opts;
+
+		// get the from id, default to '+' for desc, and '-' for asc
+		const from = _opts.from ?? (desc) ? '+' : '-';
+
+		// get the max (here we can ! since defined in default)
+		const max = (_opts.max === -1) ? Number.MAX_SAFE_INTEGER : _opts.max;
+
+		let fetched = 0;
+		let matchCount = 0;
+		const entries: StreamEntry<D>[] = [];
+		let lastFetchedId: string | undefined;
+		let fetchFrom: string | null = from;
+		let batchSize = batch;
+		let first = true; // is the first query (important to count/skip first item on next)
+
+		while (fetched < max && fetchFrom) {
+			let batchEntries: StreamEntry<D>[];
+			// if the batchSize go over max, then, we reduce it ()
+			if (fetched + batchSize > max) {
+				batchSize = max - fetched + (first ? 0 : 1); // to add for the extra to batchSize
+			}
+
+			// get the bach entries
+			if (desc) {
+				batchEntries = await this.xrevrange(fetchFrom, '-', batchSize);
+			} else {
+				batchEntries = await this.xrange(fetchFrom, '+', batchSize);
+			}
+
+			// if not the first query, then, remove the first item as it is the last item 
+			// of the previous query.
+			if (!first) {
+				batchEntries.splice(0, 1);
+			}
+
+			const batchLength = batchEntries.length;
+
+			// add to total fetched
+			fetched += batchLength;
+
+			// if we have a batch length, the process the entrise and set next fetchFrom
+			if (batchLength > 0) {
+				lastFetchedId = batchEntries[batchEntries.length - 1].id;
+				fetchFrom = lastFetchedId;
+
+				for (const entry of batchEntries) {
+					const pass = match(entry.data);
+					if (pass) {
+						matchCount++;
+						if (matchCount <= limit) {
+							entries.push(entry);
+						} else {
+							fetchFrom = null;
+						}
+					}
+				}
+			}
+
+			// if fetch batchLength is smaller than the batch size, means this was the last
+			if (batchLength < batch) {
+				fetchFrom = null;
+			}
+
+			if (first) {
+				first = false;
+				batchSize += 1; // now need to be one more, to account for the redundant [0]
+			}
+		}
+
+		const r: ListResult<D> = {
+			entries,
+			fetched
+		};
+		if (lastFetchedId) {
+			r.lastFetchId = lastFetchedId;
+		}
+		return r;
+	}
+
 }
+
 
 //#region    ---------- Arg Utils ---------- 
 /** Push the BLOCK and COUNT eventual arguments to the array */

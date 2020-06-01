@@ -87,6 +87,8 @@ export interface RedStream<D = DefaultEntryData> {
 
 	/** Do a xinfo consumers on this stream */
 	xinfoConsumers(group: string): Promise<XInfoGroup[]>
+
+	list(dir: ListDirection, opts?: ListOptions<D>): Promise<ListResult<D>>
 }
 
 
@@ -132,6 +134,36 @@ export type XClaimBaseOptions = {
 }
 
 export type XClaimOptions = { idle?: number, time?: void } & XClaimBaseOptions | { time?: number, idle?: void } & XClaimBaseOptions;
+
+export type ListDirection = 'desc' | 'asc';
+
+export interface ListOptions<D = any> {
+	/** The stream entry id to start, default '+' for 'desc', and '-' for 'asc' */
+	from?: string;
+
+	/** Limit of match entries (stop fetching after it is met). Default 1000 */
+	limit?: number;
+
+	/** batch size for each x..range count query. Default 1000 */
+	batch?: number;
+
+	/** 
+	 * Maximum data fetch after which no more fetch will be perform. 
+	 * -1 no max (until no data)
+	 * Defaault -1
+	 * */
+	max?: number;
+
+	/** Match function on the parsed data */
+	match?: (data: D) => boolean;
+}
+
+export const DEFAULT_LIST_OPTIONS: Required<Omit<ListOptions, 'from'>> & Pick<ListOptions, 'from'> = Object.freeze({
+	limit: 1000,
+	batch: 1000,
+	max: -1, // no fetch max
+	match: (data: any) => { return true }
+});
 
 //#endregion ---------- /Option Types ---------- 
 
@@ -210,6 +242,12 @@ export interface XInfoConsumers {
 	consumers: number;
 	pending: number;
 	lastDeliveredId: string;
+}
+
+export interface ListResult<D> {
+	entries: StreamEntry<D>[];
+	fetched: number;
+	lastFetchId?: string;
 }
 
 //#endregion ---------- /Result Types ---------- 
