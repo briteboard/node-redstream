@@ -1,6 +1,10 @@
 # Changelogs 
 > Legend: `!` change; `+` enhancement; `-` fix; `.` minor
 
+## [v0.1.7](https://github.com/briteboard/node-redstream/compare/v0.1.6...v0.1.7) - Tue June 1 2020
+
+- `+` .list - added .list query for desc/asc, from, batchSize, max fetched, and match method
+
 ## [v0.1.6](https://github.com/briteboard/node-redstream/compare/v0.1.4...v0.1.6) - Tue June 1 2020
 
 - `-` dataParser - exports DataParser<D> type, and put id optional on string and object dataParsers (they are not used)
