@@ -34,6 +34,6 @@ interface MyData {
 
 function dataParser(arr: string[], id: string): MyData {
 	let v: number;
-	const nvObj = stringDataParser(arr, id);
+	const nvObj = stringDataParser(arr);
 	return { v: parseInt(nvObj.v) };
 }

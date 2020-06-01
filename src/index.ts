@@ -4,7 +4,7 @@ import { RedStreamImpl } from './redstream-impl';
 import { objectDataParser, objectDataSerializer, stringDataParser, stringDataSerializer } from './utils';
 
 export { RedStream } from './redstream';
-export { stringDataParser, stringDataSerializer, objectDataParser, objectDataSerializer };
+export { DataParser, DataSerializer, stringDataParser, stringDataSerializer, objectDataParser, objectDataSerializer };
 
 //#region    ---------- Default ---------- 
 

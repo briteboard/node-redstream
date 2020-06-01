@@ -32,7 +32,12 @@ export function objectDataSerializer(obj: any): string[] {
 	return r as string[]; // the filter above will remove the null string, so, safe to force casting
 }
 
-export function stringDataParser(arr: string[], id: string): { [k: string]: string } {
+/**
+ * Return `{ [k: string]: string }` for each name/value pair of the redis string array
+ * @param arr the string[] name/value from redis raw query (i.e., [name, value, name, value, ...] )
+ * @param id Not used, no need to pass. 
+ */
+export function stringDataParser(arr: string[], id?: string): { [k: string]: string } {
 	const obj: any = {};
 	for (let i = 0; i < arr.length; i += 2) {
 		const key = arr[i];
@@ -44,7 +49,13 @@ export function stringDataParser(arr: string[], id: string): { [k: string]: stri
 	return obj;
 }
 
-export function objectDataParser(arr: string[], id: string): { [k: string]: any } {
+/**
+ * Return a `{ [k: string]: any }` for each name/value pair of the redis string array
+ * Note: Compared to stringDataParser, this parser will attempt to `JSON.parse` any value string starting with `[` or `{`. Will set original value if parsing fail.
+ * @param arr the string[] name/value from redis raw query (i.e., [name, value, name, value, ...] )
+ * @param id Not used, no need to pass.
+ */
+export function objectDataParser(arr: string[], id?: string): { [k: string]: any } {
 	const obj: any = {};
 	for (let i = 0; i < arr.length; i += 2) {
 		const key = arr[i];
@@ -52,6 +63,7 @@ export function objectDataParser(arr: string[], id: string): { [k: string]: any 
 			const valStr = arr[i + 1];
 			if (valStr.startsWith('[') || valStr.startsWith('{')) {
 				try {
+					// TODO: need to cache the keys that fail, to avoid repetitive parsing (need to evaluate pros/cons)
 					obj[key] = JSON.parse(valStr);
 				} catch{
 					obj[key] = valStr;
