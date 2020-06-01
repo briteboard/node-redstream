@@ -1,7 +1,11 @@
 # Changelogs 
 > Legend: `!` change; `+` enhancement; `-` fix; `.` minor
 
-## [v0.2.0](https://github.com/briteboard/node-redstream/compare/v0.1.3...v0.2.0) - Tue June 1 2020
+## [v0.1.5](https://github.com/briteboard/node-redstream/compare/v0.1.3...v0.1.4) - Tue June 1 2020
+
+- `-` dataParser - exports DataParser<D> type, and put id optional on string and object dataParsers (they are not used)
+
+## [v0.1.4](https://github.com/briteboard/node-redstream/compare/v0.1.3...v0.1.4) - Tue June 1 2020
 
 - `!` ! dataParser - change signature to (id: string, arr: string[]) => D, to allow parsers to handle entry ids. 
 
