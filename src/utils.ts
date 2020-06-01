@@ -32,7 +32,7 @@ export function objectDataSerializer(obj: any): string[] {
 	return r as string[]; // the filter above will remove the null string, so, safe to force casting
 }
 
-export function stringDataParser(arr: string[]): { [k: string]: string } {
+export function stringDataParser(arr: string[], id: string): { [k: string]: string } {
 	const obj: any = {};
 	for (let i = 0; i < arr.length; i += 2) {
 		const key = arr[i];
@@ -44,7 +44,7 @@ export function stringDataParser(arr: string[]): { [k: string]: string } {
 	return obj;
 }
 
-export function objectDataParser(arr: string[]): { [k: string]: any } {
+export function objectDataParser(arr: string[], id: string): { [k: string]: any } {
 	const obj: any = {};
 	for (let i = 0; i < arr.length; i += 2) {
 		const key = arr[i];

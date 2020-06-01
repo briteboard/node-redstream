@@ -91,7 +91,7 @@ export interface RedStream<D = DefaultEntryData> {
 
 
 export interface DataParser<D> {
-	(arr: string[]): D
+	(arr: string[], id: string): D
 }
 
 export interface DataSerializer<D> {

@@ -27,8 +27,8 @@ describe('xadd', function () {
 
 	it('xadd-nested-object', async () => {
 		const stream = redstream(suite.stream.ioRedis, {
-			key: 's1', dataParser: (arr: string[]) => {
-				const data = objectDataParser(arr);
+			key: 's1', dataParser: (id, arr) => {
+				const data = objectDataParser(id, arr);
 				const v = Number(data.v);
 				return { v, sub: data.sub };
 			}
@@ -44,8 +44,8 @@ describe('xadd', function () {
 
 	it('xadd-nested-array', async () => {
 		const stream = redstream(suite.stream.ioRedis, {
-			key: 's1', dataParser: (arr: string[]) => {
-				const data = objectDataParser(arr);
+			key: 's1', dataParser: (id, arr) => {
+				const data = objectDataParser(id, arr);
 				const v = Number(data.v);
 				return { v, nums: data.nums as number[] };
 			}

@@ -45,10 +45,10 @@ async function main() {
   //// Typed RedStream
 
   // create a dataParser
-  const metricDataParser = (dataArr: string[]) => {
+  const metricDataParser = (dataArr: string[], id: string) => {
     // Here we use the provided objectDataParser to start to parse the redis stream entry [name, value, ...] array to string
     // Note: if value above start with '{' or '[' it will attempt to do a JSON.parse to get the object. 
-    const dataObj = objectDataParser(dataArr);
+    const dataObj = objectDataParser(id, dataArr);
     // Then, we return the typed data
     return {
       temperature: Number(dataObj.temperature),

@@ -25,7 +25,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	get dataSerializer() { return this._dataSerializer };
 
 
-	constructor(ioRedis: IORedis.Redis, name: string, parser: (nvArr: string[]) => D, serializer: (data: D) => string[]) {
+	constructor(ioRedis: IORedis.Redis, name: string, parser: DataParser<D>, serializer: (data: D) => string[]) {
 		this.key = name;
 		this._ioRedis = (<any>ioRedis) as IORedisFixedType;
 		this._dataParser = parser;
@@ -275,9 +275,10 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		const entries: StreamGroupEntry<D>[] = [];
 		for (const rawEntry of rawResult) {
 			const dataArr = rawEntry[1];
+			const id = rawEntry[0];
 			entries.push({
-				id: rawEntry[0],
-				data: (dataArr != null) ? this._dataParser(dataArr) : null
+				id,
+				data: (dataArr != null) ? this._dataParser(dataArr, id) : null
 			});
 		}
 		return { group, consumer, entries }
@@ -367,7 +368,7 @@ function pushXReadOpts(args: string[], stream: string, id: string, xreadOpts?: X
 
 //#region    ---------- Parse Result Utils ---------- 
 // TODO: needs to find a typed was to merge with parseReadGroupResult
-function parseReadResult<D>(streamReadRaw: StreamReadRaw, qid: string, dataParser: (nvArr: string[]) => D): XReadResult<D>[] {
+function parseReadResult<D>(streamReadRaw: StreamReadRaw, qid: string, dataParser: DataParser<D>): XReadResult<D>[] {
 	const result: XReadResult<D>[] = [];
 
 
@@ -389,7 +390,7 @@ function parseReadResult<D>(streamReadRaw: StreamReadRaw, qid: string, dataParse
 
 
 
-function parseReadGroupResult<D>(streamReadRaw: StreamReadRaw, qid: string, dataParser: (nvArr: string[]) => D, group: string, consumer: string): XReadGroupResult<D>[] {
+function parseReadGroupResult<D>(streamReadRaw: StreamReadRaw, qid: string, dataParser: DataParser<D>, group: string, consumer: string): XReadGroupResult<D>[] {
 	const result: XReadGroupResult<D>[] = [];
 
 
@@ -413,11 +414,11 @@ function parseEntry<D, N extends boolean>(entryRaw: EntryRaw, dataParser: DataPa
 function parseEntry<D>(entryRaw: EntryRaw, dataParser: DataParser<D>, dataNotNullable?: boolean): StreamEntry<D> | StreamEntry<D | null> {
 	const id = entryRaw[0];
 	const dataArr = entryRaw[1];
-	if (dataNotNullable) {
-		const data = dataParser(dataArr);
+	if (dataNotNullable) { // for xgroupread, can't be null
+		const data = dataParser(dataArr, id);
 		return { id, data };
 	} else {
-		const data = (dataArr == null) ? null : dataParser(dataArr);
+		const data = (dataArr == null) ? null : dataParser(dataArr, id);
 		return { id, data };
 	}
 

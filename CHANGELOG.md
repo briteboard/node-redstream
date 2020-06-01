@@ -1,6 +1,11 @@
 # Changelogs 
 > Legend: `!` change; `+` enhancement; `-` fix; `.` minor
 
+## [v0.2.0](https://github.com/briteboard/node-redstream/compare/v0.1.3...v0.2.0) - Tue June 1 2020
+
+- `!` ! dataParser - change signature to (id: string, arr: string[]) => D, to allow parsers to handle entry ids. 
+
+
 ## [v0.1.3](https://github.com/briteboard/node-redstream/compare/v0.1.2...v0.1.3) - Tue Apr 28 2020
 
 - Wrap `@types/ioredis` `Redis` type to fix some of the methods signatures (see [@type/ioredis issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/44301))
