@@ -1,3 +1,5 @@
+ //// IMPORTANT: At this point, this tsconfig.json is NOT USED as the tsconfig -p... options is not available in mocha in 8.x (match to parallel match)
+ ////            Might need to use ts-mocha.
  {
 	"compilerOptions": {
 		"target": "ES2019",

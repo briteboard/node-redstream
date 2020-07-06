@@ -9,8 +9,8 @@
     "url": "https://github.com/briteboard/node-redstream.git"
   },
   "scripts": {
-    "test": "TS_NODE_FILES=true ./node_modules/.bin/mocha -p ./test/tsconfig.json ./test/spec/*.spec.ts",
-    "testw": "TS_NODE_FILES=true ./node_modules/.bin/mocha -p ./test/tsconfig.json ./test/spec/*.spec.ts --watch --watch-files './test/**/*.ts','./src/**/*.ts'",
+    "test": "TS_NODE_FILES=true ./node_modules/.bin/mocha",
+    "testw": "TS_NODE_FILES=true ./node_modules/.bin/mocha -watch",
     "prepare": "node_modules/.bin/rimraf ./dist && ./node_modules/.bin/tsc"
   },
   "author": "",
@@ -19,14 +19,14 @@
     "ioredis": "^4.16.1"
   },
   "devDependencies": {
-    "@types/ioredis": "^4.16.3",
+    "@types/ioredis": "^4.17.0",
     "@types/mocha": "^7.0.2",
-    "@types/redis": "^2.8.22",
+    "@types/redis": "^2.8.24",
     "ioredis": "^4.17.3",
-    "mocha": "^7.2.0",
+    "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
-    "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.9.3"
+    "ts-node-dev": "^1.0.0-pre.50",
+    "typescript": "^3.9.6"
   },
   "dependencies": {},
   "files": [

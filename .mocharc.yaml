@@ -1,2 +1,5 @@
 require: ts-node/register
-# watch-extensions: ts
+spec: ./test/spec/*.spec.ts
+watch-files: 
+  - ./test/**/*.ts
+  - ./src/**/*.ts
