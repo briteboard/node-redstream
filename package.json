@@ -1,6 +1,6 @@
 {
   "name": "redstream",
-  "version": "0.1.8",
+  "version": "0.1.9-SNAPSHOT",
   "description": "Handcrafted TypeScript API for Redis Stream (ioredis backed)",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -19,13 +19,13 @@
     "ioredis": "^4.16.1"
   },
   "devDependencies": {
-    "@types/ioredis": "^4.17.0",
+    "@types/ioredis": "^4.17.2",
     "@types/mocha": "^7.0.2",
-    "@types/redis": "^2.8.24",
+    "@types/redis": "^2.8.25",
     "ioredis": "^4.17.3",
     "mocha": "^8.0.1",
     "rimraf": "^3.0.2",
-    "ts-node-dev": "^1.0.0-pre.50",
+    "ts-node-dev": "^1.0.0-pre.51",
     "typescript": "^3.9.6"
   },
   "dependencies": {},
