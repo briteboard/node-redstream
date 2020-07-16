@@ -119,7 +119,7 @@ export interface XAddOptions extends XAddBaseOptions {
 	id?: string;
 }
 
-export type XReadOptions = { count?: number, block?: void } | { count?: void, block?: boolean | number }
+export type XReadOptions = { count?: number, block?: boolean | number }
 
 export type XReadGroupOptions = XReadOptions & {
 	/* (default false) */

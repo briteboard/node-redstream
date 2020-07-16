@@ -59,23 +59,51 @@ describe('xreadgroup', async function () {
 		await stream.xgroupDestroy('g1');
 		await stream.xgroupCreate('g1');
 
+		// Send another stream entry
+		// Note: Must have other stream (ioredis client, otherwise, the command above block)
+		const stream_clone = redstream(newIORedis(), stream.key);
+		await stream_clone.xadd({ v: '5' });
+		await stream_clone.xadd({ v: '6' });
+
 		// first start the block command (do not await to do the rest below)
 		let resultP = stream.xreadgroup('g1', 'c1', { block: true });
 		await wait(10);
+
+		await wait(10);
+
+		const result = await resultP;
+		let dataList = result!.entries.map(entry => entry.data);
+		equal(dataList, [{ v: '5' }, { v: '6' }]);
+		await stream_clone.ioRedis.disconnect();
+	});
+
+	it('xreadgroup-block-1', async function () {
+		const stream = suite.stream;
+
+		// make sure the stream is clean of group
+		await stream.xgroupDestroy('g1');
+		await stream.xgroupCreate('g1');
 
 		// Send another stream entry
 		// Note: Must have other stream (ioredis client, otherwise, the command above block)
 		const stream_clone = redstream(newIORedis(), stream.key);
 		await stream_clone.xadd({ v: '5' });
+		await stream_clone.xadd({ v: '6' });
 
+		// first start the block command (do not await to do the rest below)
+		let resultP = stream.xreadgroup('g1', 'c1', { block: true, count: 1 });
 		await wait(10);
 
+
+
+		await wait(10);
 
 		const result = await resultP;
 		let dataList = result!.entries.map(entry => entry.data);
 		equal(dataList, [{ v: '5' }]);
 		await stream_clone.ioRedis.disconnect();
 	});
+
 
 	it('xreadgroup-mkgroup', async function () {
 		const stream = suite.stream;
