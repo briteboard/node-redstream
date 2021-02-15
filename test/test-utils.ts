@@ -67,7 +67,7 @@ export async function seedStream(stream: RedStream, count = 4): Promise<string[]
 }
 
 export async function wait(ms: number) {
-	return new Promise((res, rej) => {
+	return new Promise<void>((res, rej) => {
 		setTimeout(() => { res() }, ms)
 	})
 }
