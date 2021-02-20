@@ -107,6 +107,27 @@ describe('list', async function () {
 		equal(r.fetched, 250);
 	});
 
+	it('list-from', async function () {
+		const stream = suite.stream;
+
+		const ids = await seedStream(stream, 1100);
+
+		// get first list
+		const r1 = await stream.list('desc', {
+			batch: 51,
+			limit: 100
+		});
+		const lastEntry1 = r1.entries[r1.entries.length - 1];
+
+		// then second list with the from
+		const r2 = await stream.list('desc', {
+			limit: 100,
+			from: lastEntry1.id
+		});
+
+		const lastEntry2 = r2.entries[r2.entries.length - 1];
+		equal(lastEntry2.data.v, '902');
+	});
 });
 
 

@@ -340,8 +340,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		const { batch, limit, match } = _opts;
 
 		// get the from id, default to '+' for desc, and '-' for asc
-		const from = _opts.from ?? (desc) ? '+' : '-';
-
+		const from = _opts.from ?? ((desc) ? '+' : '-');
 		// get the max (here we can ! since defined in default)
 		const max = (_opts.max === -1) ? Number.MAX_SAFE_INTEGER : _opts.max;
 
