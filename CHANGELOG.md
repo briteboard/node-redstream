@@ -2,6 +2,12 @@
 
 > Legend: `!` change; `+` enhancement; `-` fix; `.` minor
 
+## [v0.1.11](https://github.com/briteboard/node-redstream/compare/v0.1.7...v0.1.11) - Tue Feb 20 2021
+
+- `^` list - optimize when no match function by avoiding the matching for loop
+- `-` list - fix opts.from that was ignored
+- `+` xreadgroup - add block and count support
+
 ## [v0.1.7](https://github.com/briteboard/node-redstream/compare/v0.1.6...v0.1.7) - Tue June 1 2020
 
 - `+` .list - added .list query for desc/asc, from, batchSize, max fetched, and match method
