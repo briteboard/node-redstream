@@ -341,8 +341,11 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 
 		// get the from id, default to '+' for desc, and '-' for asc
 		const from = _opts.from ?? ((desc) ? '+' : '-');
-		// get the max (here we can ! since defined in default)
-		const max = (_opts.max === -1) ? Number.MAX_SAFE_INTEGER : _opts.max;
+		// get the options max final value
+		const _opts_max_ = (_opts.max === -1) ? Number.MAX_SAFE_INTEGER : _opts.max;
+		// if no match function given, then, max can be limit if smaller.
+		const max = (match == null && limit < _opts_max_) ? limit : _opts_max_;
+
 
 		let fetched = 0;
 		let matchCount = 0;
@@ -377,22 +380,35 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			// add to total fetched
 			fetched += batchLength;
 
-			// if we have a batch length, the process the entrise and set next fetchFrom
+			// if we have a batch length, the process the entries and set next fetchFrom
 			if (batchLength > 0) {
 				lastFetchedId = batchEntries[batchEntries.length - 1].id;
 				fetchFrom = lastFetchedId;
 
-				for (const entry of batchEntries) {
-					const pass = match(entry.data);
-					if (pass) {
-						matchCount++;
-						if (matchCount <= limit) {
-							entries.push(entry);
-						} else {
-							fetchFrom = null;
+				// if we do not have match function, then, all batchEntries, are elligles, can just slice if bigger than limit
+				if (match == null) {
+					const sliceLength = (batchEntries.length + matchCount >= limit) ? (limit - matchCount) : batchEntries.length;
+					const batchEntriesToAdd = (sliceLength === batchEntries.length) ? batchEntries : batchEntries.slice(0, sliceLength);
+					entries.push(...batchEntriesToAdd);
+					matchCount += batchEntriesToAdd.length;
+				}
+				// if we have a batch 
+				else {
+					for (const entry of batchEntries) {
+						const pass = match(entry.data);
+						if (pass) {
+							matchCount++;
+							if (matchCount <= limit) {
+								entries.push(entry);
+							} else {
+								// if above the limit, then, set fetchFrom to null and end the loop
+								fetchFrom = null;
+								break;
+							}
 						}
 					}
 				}
+
 			}
 
 			// if fetch batchLength is smaller than the batch size, means this was the last

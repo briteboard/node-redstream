@@ -92,7 +92,7 @@ describe('list', async function () {
 
 	});
 
-	it('list-limit', async function () {
+	it('list-limit-simple', async function () {
 		const stream = suite.stream;
 
 		const ids = await seedStream(stream, 1100);
@@ -104,6 +104,24 @@ describe('list', async function () {
 		});
 
 		equal(r.entries.length, 221);
+		equal(r.fetched, 221);
+	});
+
+	it('list-limit-match', async function () {
+		const stream = suite.stream;
+
+		const ids = await seedStream(stream, 1100);
+
+		// perform list
+		let r = await stream.list('desc', {
+			batch: 50,
+			limit: 10,
+			match: (data) => {
+				const vnum = Number(data.v);
+				return (vnum % 20) === 0;
+			}
+		});
+		equal(r.entries.length, 10);
 		equal(r.fetched, 250);
 	});
 
