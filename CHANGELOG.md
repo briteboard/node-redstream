@@ -2,6 +2,11 @@
 
 > Legend: `!` change; `+` enhancement; `-` fix; `.` minor
 
+
+## [v0.1.12](https://github.com/briteboard/node-redstream/compare/v0.1.11...v0.1.12) - Nov 29 2021
+
+- `.` update dependencies (last release with commonjs)
+
 ## [v0.1.11](https://github.com/briteboard/node-redstream/compare/v0.1.7...v0.1.11) - Tue Feb 20 2021
 
 - `^` list - optimize when no match function by avoiding the matching for loop

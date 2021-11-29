@@ -71,8 +71,8 @@ describe('xgroup', async function () {
 		await stream.xgroupCreate(G1);
 		await stream.xgroupDestroy(G1);
 
-		// Should throw exception
-		await rejects(stream.xpending(G1), (err) => err.message.includes('NOGROUP'));
+		// Should throw exceptionts
+		await rejects(stream.xpending(G1), (err: any) => err.message.includes('NOGROUP'));
 
 	});
 

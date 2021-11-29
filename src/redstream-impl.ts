@@ -134,7 +134,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		let rawResult: StreamReadRaw | null;
 		try {
 			rawResult = await this._ioRedis.xreadgroup('GROUP', group, consumer, args);
-		} catch (ex) {
+		} catch (ex: any) {
 			const mkgroup = opts?.mkgroup ?? true; // by default we create the group
 			const mkgroupId = (typeof mkgroup === 'string') ? mkgroup : DEFAULT_XGROUPCREATE_ID;
 			if (mkgroup && ex?.message?.includes('NOGROUP')) {
