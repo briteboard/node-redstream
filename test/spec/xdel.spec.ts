@@ -1,6 +1,6 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import { initSuite } from '../test-utils';
+import { initSuite } from '../test-utils.js';
 
 const G1 = 'g1';
 
@@ -41,5 +41,4 @@ describe('xdel', async function () {
 	});
 
 });
-
 

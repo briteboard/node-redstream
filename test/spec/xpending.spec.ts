@@ -1,6 +1,6 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import { initSuite } from '../test-utils';
+import { initSuite } from '../test-utils.js';
 
 
 describe('xpending', async function () {

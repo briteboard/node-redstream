@@ -1,7 +1,7 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import readStream from '../../src';
-import { initSuite, seedStream } from '../test-utils';
+import readStream from '../../src/index.js';
+import { initSuite, seedStream } from '../test-utils.js';
 
 const G1 = 'g1';
 
@@ -103,5 +103,4 @@ describe('xinfo', async function () {
 
 
 });
-
 

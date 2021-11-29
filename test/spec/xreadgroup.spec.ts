@@ -1,7 +1,7 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import redstream from '../../src';
-import { initSuite, newIORedis, seedStream, wait } from '../test-utils';
+import redstream from '../../src/index.js';
+import { initSuite, newIORedis, seedStream, wait } from '../test-utils.js';
 
 
 

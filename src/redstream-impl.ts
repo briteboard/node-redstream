@@ -1,7 +1,7 @@
 import IORedis from 'ioredis';
-import { EntryRaw, IORedisFixedType, StreamReadRaw } from './ioredis-type-helpers';
-import { DataParser, DataSerializer, DefaultEntryData, DEFAULT_LIST_OPTIONS, ListDirection, ListOptions, ListResult, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream';
-import { camelDataParser, objectDataSerializer } from './utils';
+import { EntryRaw, IORedisFixedType, StreamReadRaw } from './ioredis-type-helpers.js';
+import { DataParser, DataSerializer, DefaultEntryData, DEFAULT_LIST_OPTIONS, ListDirection, ListOptions, ListResult, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream.js';
+import { camelDataParser, objectDataSerializer } from './utils.js';
 
 /////////////////////
 // Module encapsulating the RedStream implementation. NOT to be called directly, default module redstream() factory.
@@ -527,6 +527,5 @@ function parseEntry<D>(entryRaw: EntryRaw, dataParser: DataParser<D>, dataNotNul
 }
 
 //#endregion ---------- /Parse Result Utils ---------- 
-
 
 

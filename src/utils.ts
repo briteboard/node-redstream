@@ -65,7 +65,7 @@ export function objectDataParser(arr: string[], id?: string): { [k: string]: any
 				try {
 					// TODO: need to cache the keys that fail, to avoid repetitive parsing (need to evaluate pros/cons)
 					obj[key] = JSON.parse(valStr);
-				} catch{
+				} catch {
 					obj[key] = valStr;
 				}
 			} else {

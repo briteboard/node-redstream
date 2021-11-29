@@ -4,11 +4,11 @@
 
  {
 	"compilerOptions": {
-		// ES2019 until node.js supports optional chaining / null coalescing
-		"target": "ES2019",
-
-		// For now, we keep the traditional commonsjs way
-		"module": "commonjs",
+		// For nodejs 16+ runtime
+		"target": "ES2021",
+		
+		// For nodejs type: module
+		"module": "ESNext",
 
 		// This is important to support 3rd party modules that are still in a node.js/commonjs way
 		"moduleResolution": "node", 

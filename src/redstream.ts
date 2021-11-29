@@ -1,6 +1,6 @@
 
 import IORedis from 'ioredis';
-import { EntryRaw } from './ioredis-type-helpers';
+import { EntryRaw } from './ioredis-type-helpers.js';
 
 
 /////////////////////

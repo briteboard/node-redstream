@@ -1,5 +1,5 @@
 import { deepStrictEqual as equal } from 'assert';
-import { camelDataParser } from '../../src/utils';
+import { camelDataParser } from '../../src/utils.js';
 
 const G1 = 'g1';
 

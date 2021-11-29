@@ -1,8 +1,8 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import redstream from '../../src';
-import { objectDataParser } from '../../src/utils';
-import { initSuite, seedStream } from '../test-utils';
+import redstream from '../../src/index.js';
+import { objectDataParser } from '../../src/utils.js';
+import { initSuite, seedStream } from '../test-utils.js';
 
 describe('xadd', function () {
 
@@ -105,4 +105,3 @@ describe('xadd', function () {
 	});
 
 });
-

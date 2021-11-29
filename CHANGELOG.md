@@ -3,6 +3,10 @@
 > Legend: `!` change; `+` enhancement; `-` fix; `.` minor
 
 
+## [v0.2.0](https://github.com/briteboard/node-redstream/compare/v0.1.12...v0.2.0) - Nov 29 2021
+
+- `!` udpate to ESM module only.
+
 ## [v0.1.12](https://github.com/briteboard/node-redstream/compare/v0.1.11...v0.1.12) - Nov 29 2021
 
 - `.` update dependencies (last release with commonjs)

@@ -1,6 +1,6 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import { initSuite, seedStream } from '../test-utils';
+import { initSuite, seedStream } from '../test-utils.js';
 
 const G1 = 'g1';
 
@@ -24,5 +24,4 @@ describe('xrange', async function () {
 	});
 
 });
-
 

@@ -1,8 +1,8 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import redstream from '../../src';
-import { stringDataParser } from '../../src/utils';
-import { initSuite } from '../test-utils';
+import redstream from '../../src/index.js';
+import { stringDataParser } from '../../src/utils.js';
+import { initSuite } from '../test-utils.js';
 
 
 describe('data-parser', function () {

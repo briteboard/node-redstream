@@ -1,6 +1,6 @@
 
 import { deepStrictEqual as equal, rejects } from 'assert';
-import { initSuite } from '../test-utils';
+import { initSuite } from '../test-utils.js';
 
 const G1 = 'g1';
 

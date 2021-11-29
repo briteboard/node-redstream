@@ -2,9 +2,11 @@
  ////            Might need to use ts-mocha.
  {
 	"compilerOptions": {
-		"target": "ES2019",
+		// For nodejs 16+ runtime
+		"target": "ES2021",
 
-		"module": "commonjs",
+		// For nodejs type: module
+		"module": "ESNext",
 
 		"moduleResolution": "node", 
 		
@@ -20,7 +22,9 @@
 		"baseUrl": ".",
 		
 		"experimentalDecorators": true,
-				
+
+		// use native class field
+		"useDefineForClassFields": true,
 		"esModuleInterop": true
 	},
 

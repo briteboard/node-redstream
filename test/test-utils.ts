@@ -1,6 +1,6 @@
 import { deepStrictEqual as equal } from 'assert';
 import IORedis from 'ioredis';
-import redstream, { RedStream } from '../src';
+import redstream, { RedStream } from '../src/index.js';
 
 declare global {
 	namespace Mocha {

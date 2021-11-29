@@ -1,7 +1,7 @@
 import IORedis from 'ioredis';
-import { DataParser, DataSerializer, DefaultEntryData, RedStream } from './redstream';
-import { RedStreamImpl } from './redstream-impl';
-import { objectDataParser, objectDataSerializer, stringDataParser, stringDataSerializer } from './utils';
+import { RedStreamImpl } from './redstream-impl.js';
+import { DataParser, DataSerializer, DefaultEntryData, RedStream } from './redstream.js';
+import { objectDataParser, objectDataSerializer, stringDataParser, stringDataSerializer } from './utils.js';
 
 export { RedStream } from './redstream';
 export { DataParser, DataSerializer, stringDataParser, stringDataSerializer, objectDataParser, objectDataSerializer };

@@ -1,6 +1,6 @@
 
 import { deepStrictEqual as equal } from 'assert';
-import { initSuite, seedStream } from '../test-utils';
+import { initSuite, seedStream } from '../test-utils.js';
 
 
 
@@ -45,5 +45,4 @@ describe('xread', async function () {
 		equal(dataList, [{ v: '2' }, { v: '3' }])
 	});
 });
-
 
