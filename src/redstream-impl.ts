@@ -1,5 +1,6 @@
-import IORedis from 'ioredis';
-import { EntryRaw, IORedisFixedType, StreamReadRaw } from './ioredis-type-helpers.js';
+import { Redis } from 'ioredis';
+import { EntryRaw, StreamReadRaw } from './ioredis-type-helpers.js';
+// import { EntryRaw, IORedisFixedType, StreamReadRaw } from './ioredis-type-helpers.js';
 import { DataParser, DataSerializer, DefaultEntryData, DEFAULT_LIST_OPTIONS, ListDirection, ListOptions, ListResult, RedStream, StreamEntry, StreamGroupEntry, XAddOptions, XAddsOptions, XClaimOptions, XClaimResult, XInfoConsumers, XInfoGroup, XInfoStreamRawObj, XInfoStreamResult, XPendingDetailsResult, XPendingSummaryResult, XReadGroupOptions, XReadGroupResult, XReadOptions, XReadResult } from './redstream.js';
 import { camelDataParser, objectDataSerializer } from './utils.js';
 
@@ -12,11 +13,12 @@ import { camelDataParser, objectDataSerializer } from './utils.js';
 const DEFAULT_XGROUPCREATE_ID = '0';
 
 export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
+	#ioRedis: Redis;
+
 	readonly key: string;
 
 
-	private readonly _ioRedis: IORedisFixedType;
-	get ioRedis() { return (<any>this._ioRedis) as IORedis.Redis };
+	get ioRedis() { return this.#ioRedis };
 
 	private readonly _dataParser: DataParser<D>;
 	get dataParser() { return this._dataParser };
@@ -25,20 +27,25 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	get dataSerializer() { return this._dataSerializer };
 
 
-	constructor(ioRedis: IORedis.Redis, name: string, parser: DataParser<D>, serializer: (data: D) => string[]) {
+	constructor(ioRedis: Redis, name: string, parser: DataParser<D>, serializer: (data: D) => string[]) {
 		this.key = name;
-		this._ioRedis = (<any>ioRedis) as IORedisFixedType;
+		this.#ioRedis = ioRedis;
 		this._dataParser = parser;
 		this._dataSerializer = serializer ?? objectDataSerializer;
 	}
 
 	async xtrim(count: number, exact = false): Promise<number> {
 		const args = (exact) ? ['' + count] : ['~', '' + count];
-		return this._ioRedis.xtrim(this.key, 'MAXLEN', ...args);
+		if (exact) {
+			return this.#ioRedis.xtrim(this.key, 'MAXLEN', count);
+		} else {
+			return this.#ioRedis.xtrim(this.key, 'MAXLEN', '~', count);
+		}
+
 	}
 
 	async xlen(): Promise<number> {
-		return await this._ioRedis.xlen(this.key);
+		return await this.#ioRedis.xlen(this.key);
 	}
 
 
@@ -46,7 +53,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	xadd(obj: D, opts?: XAddOptions): Promise<string>;
 	xadd(obj: D[], maxlen?: number): Promise<string[]>;
 	xadd(objs: D[], opts?: XAddsOptions): Promise<string[]>;
-	async xadd(obj: D | D[], opts_or_maxlen?: XAddOptions | number): Promise<string | string[]> {
+	async xadd(obj: D | D[], opts_or_maxlen?: XAddOptions | number): Promise<string | string[] | null> {
 
 		let maxlen: number | undefined;
 		let maxlenExact = false; // default false
@@ -76,7 +83,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 
 		if (obj instanceof Array) {
 			args.push('*'); // Here when list of objects, always use '*', the opts should not have .id
-			const batch = this._ioRedis.pipeline();
+			const batch = this.#ioRedis.pipeline();
 			for (const itemObj of obj) {
 				const arr = this._dataSerializer(itemObj);
 				//const id = await this.ioRedis.xadd(this.key, ...[...args, ...arr]);
@@ -84,11 +91,11 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 				batch.xadd(this.key, ...[...args, ...arr]);
 			}
 			const execResult = await batch.exec(); // [error, id][]
-			return execResult.map(item => item[1]) as string[];
+			return execResult?.map(item => item[1]) as string[];
 		} else {
 			const arr = this._dataSerializer(obj);
 			args.push(id);
-			return this._ioRedis.xadd(this.key, ...[...args, ...arr]);
+			return this.#ioRedis.xadd(this.key, ...[...args, ...arr]);
 		}
 
 
@@ -108,7 +115,8 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 
 		//// Exec
 		// e.g., await ioRedis.xread(split`BLOCK 0 COUNT 2 STREAMS ${S1} ${fromId}`);
-		const rawResult = await this._ioRedis.xread(args);
+		// TODO - FIX TYPE
+		const rawResult = await this.#ioRedis.xread(args as any);
 		return (rawResult != null) ? (parseReadResult(rawResult, qid, this._dataParser)[0] ?? null) : null;
 	}
 
@@ -133,13 +141,16 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		// e.g., await client.xreadgroup('GROUP', G1, 'c1', split`STREAMS ${S1} >`);
 		let rawResult: StreamReadRaw | null;
 		try {
-			rawResult = await this._ioRedis.xreadgroup('GROUP', group, consumer, args);
+			// TODO - FIX TYPE
+			rawResult = (await this.#ioRedis.xreadgroup('GROUP', group, consumer, args as any)) as (StreamReadRaw | null);
 		} catch (ex: any) {
 			const mkgroup = opts?.mkgroup ?? true; // by default we create the group
 			const mkgroupId = (typeof mkgroup === 'string') ? mkgroup : DEFAULT_XGROUPCREATE_ID;
 			if (mkgroup && ex?.message?.includes('NOGROUP')) {
 				await this.xgroupCreate(group, { id: mkgroupId }); // create the group (won't through an exception, but group might already exist)
-				rawResult = await this._ioRedis.xreadgroup('GROUP', group, consumer, args); // if fail this time, pass it through
+				// if fail this time, pass it through
+				// TODO - FIX TYPE
+				rawResult = (await this.#ioRedis.xreadgroup('GROUP', group, consumer, args as any)) as StreamReadRaw | null;
 			} else {
 				throw ex;
 			}
@@ -155,7 +166,8 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			args.push('COUNT', '' + count);
 		}
 
-		const rawXRangeResult = await this._ioRedis.xrange(this.key, ...args); // TS-NOTE here the args might be 4 strings, compatible with js call
+		// TS-NOTE here the args might be 4 strings, compatible with js call
+		const rawXRangeResult = await this.#ioRedis.xrange(this.key, ...args);
 
 		return rawXRangeResult.map(rawEntry => parseEntry(rawEntry, this._dataParser, true));
 
@@ -167,14 +179,14 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			args.push('COUNT', '' + count);
 		}
 
-		const rawXRangeResult = await this._ioRedis.xrevrange(this.key, ...args); // TS-NOTE here the args might be 4 strings, compatible with js call
+		const rawXRangeResult = await this.#ioRedis.xrevrange(this.key, ...args); // TS-NOTE here the args might be 4 strings, compatible with js call
 
 		return rawXRangeResult.map(rawEntry => parseEntry(rawEntry, this._dataParser, true));
 
 	}
 
 	async xdel(...ids: string[]): Promise<number> {
-		return this._ioRedis.xdel(this.key, ...ids);
+		return this.#ioRedis.xdel(this.key, ...ids);
 	}
 
 	/** Create a group for a given stream. By default does a MKSTREAM, can be turned off. */
@@ -185,7 +197,8 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			args.push('MKSTREAM'); // by default, do the MKSTREAM (create stream if no exist)
 		}
 		try {
-			await this._ioRedis.xgroup(args);
+			// TODO - FIX TYPE
+			await this.#ioRedis.xgroup(args as any);
 			return true;
 		} catch (ex) {
 			if (ex instanceof Error) {
@@ -197,18 +210,18 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 	}
 
 	async xgroupDestroy(name: string): Promise<number> {
-		const result = (await this._ioRedis.xgroup('DESTROY', this.key, name)) as number; // xgroup destroy always returns number
+		const result = (await this.#ioRedis.xgroup('DESTROY', this.key, name)) as number; // xgroup destroy always returns number
 		return result;
 	}
 
 	async xgroupDelconsumer(group: string, consumer: string): Promise<number> {
-		const result = (await this._ioRedis.xgroup('DELCONSUMER', this.key, group, consumer)) as number; // xgroup delconsumer always returns number
+		const result = (await this.#ioRedis.xgroup('DELCONSUMER', this.key, group, consumer)) as number; // xgroup delconsumer always returns number
 		return result;
 	}
 
 	async xgroupSetid(group: string, id: string): Promise<true> {
 
-		await this._ioRedis.xgroup('SETID', this.key, group, id);
+		await this.#ioRedis.xgroup('SETID', this.key, group, id);
 
 		return true;
 	}
@@ -227,13 +240,14 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			if (consumer) {
 				args.push(consumer)
 			}
-			const rawResult = await this._ioRedis.xpending(this.key, group, ...args) as [string, string, number, number][] | null;
+			// TODO - FIX TYPE
+			const rawResult = await this.#ioRedis.xpending(this.key, group, ...args as any) as [string, string, number, number][] | null;
 			if (rawResult == null) return rawResult;
 
 			return rawResult.map(arr => { return { id: arr[0], consumer: arr[1], time: arr[2], delivered: arr[3] } })
 
 		} else {
-			const rawResult = await this._ioRedis.xpending(this.key, group) as [number, string | null, string | null, [string, string][] | null];
+			const rawResult = await this.#ioRedis.xpending(this.key, group) as [number, string | null, string | null, [string, string][] | null];
 			const [count, smallest, highest, comsumerArr] = rawResult;
 
 			const consumers = (comsumerArr != null) ? comsumerArr.map(arr => { return { name: arr[0], count: Number(arr[1]) } }) : null;
@@ -244,7 +258,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 
 	async xack(group: string, id: string, ...ids: string[]): Promise<number> {
 		ids.unshift(id);
-		return this._ioRedis.xack(this.key, group, ...ids);
+		return this.#ioRedis.xack(this.key, group, ...ids);
 	}
 
 	async xclaim(group: string, consumer: string, minIdle: number, ids: string | string[], opts?: XClaimOptions): Promise<XClaimResult<D>> {
@@ -270,7 +284,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 			}
 
 		}
-		const rawResult = await this._ioRedis.xclaim(this.key, group, consumer, minIdle, ...args, ...ids);
+		const rawResult = (await this.#ioRedis.xclaim(this.key, group, consumer, minIdle, ...args, ...ids)) as EntryRaw[];
 
 		const entries: StreamGroupEntry<D>[] = [];
 		for (const rawEntry of rawResult) {
@@ -287,7 +301,8 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 
 	async xinfo(): Promise<XInfoStreamResult<D> | null> {
 		try {
-			const rawArr = await this._ioRedis.xinfo('STREAM', this.key);
+			// TODO - FIX TYPE
+			const rawArr = (await this.#ioRedis.xinfo('STREAM', this.key)) as any;
 			const rawObj = camelDataParser(rawArr) as XInfoStreamRawObj;
 			const firstEntry = (rawObj.firstEntry != null) ? parseEntry(rawObj.firstEntry, this._dataParser, true) : null;
 			const lastEntry = (rawObj.lastEntry != null) ? parseEntry(rawObj.lastEntry, this._dataParser, true) : null;
@@ -305,7 +320,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		let groups: XInfoGroup[];
 
 		try {
-			const rawArr = await this._ioRedis.xinfo('GROUPS', this.key) as any[][];
+			const rawArr = await this.#ioRedis.xinfo('GROUPS', this.key) as any[][];
 			groups = rawArr?.map(item => camelDataParser(item)) ?? [];
 		} catch (ex) {
 			groups = [];
@@ -320,7 +335,7 @@ export class RedStreamImpl<D = DefaultEntryData> implements RedStream<D> {
 		let consumers: XInfoGroup[];
 
 		try {
-			const rawArr = await this._ioRedis.xinfo('CONSUMERS', this.key, group) as any[][];
+			const rawArr = await this.#ioRedis.xinfo('CONSUMERS', this.key, group) as any[][];
 			consumers = rawArr?.map(item => camelDataParser(item)) ?? [];
 		} catch (ex) {
 			consumers = [];

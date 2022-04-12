@@ -1,5 +1,5 @@
 
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 import { EntryRaw } from './ioredis-type-helpers.js';
 
 
@@ -9,7 +9,7 @@ import { EntryRaw } from './ioredis-type-helpers.js';
 
 export interface RedStream<D = DefaultEntryData> {
 	readonly key: string;
-	readonly ioRedis: IORedis.Redis;
+	readonly ioRedis: Redis;
 	readonly dataParser: DataParser<D>;
 
 	/** Do a xtrim with the approximate default ~ (perf first). Set exact=true to have exact triming. */

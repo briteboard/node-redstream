@@ -1,4 +1,4 @@
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 import { RedStreamImpl } from './redstream-impl.js';
 import { DataParser, DataSerializer, DefaultEntryData, RedStream } from './redstream.js';
 import { objectDataParser, objectDataSerializer, stringDataParser, stringDataSerializer } from './utils.js';
@@ -16,7 +16,7 @@ interface StreamSpec<D> {
 }
 
 /** Factory to create a new RedStream instance from a  */
-export default function redstream<D = DefaultEntryData>(ioRedis: IORedis.Redis, key_or_spec: string | StreamSpec<D>): RedStream<D> {
+export default function redstream<D = DefaultEntryData>(ioRedis: Redis, key_or_spec: string | StreamSpec<D>): RedStream<D> {
 
 	const spec: StreamSpec<D> = (typeof key_or_spec === 'string') ? { key: key_or_spec, dataParser: objectDataParser } as StreamSpec<D> : key_or_spec;
 
